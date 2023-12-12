@@ -55,4 +55,13 @@ public class RecipeController {
         }
     }
 
+    @PostMapping("/uploadImage")
+    public ResponseEntity<String> uploadImage(@RequestHeader String auth, @RequestBody String base64) {
+        try {
+            return this.recipeService.uploadImage(this.userService.getUserByHeader(auth), base64);
+        } catch (FomException e) {
+            return e.toResponseEntity();
+        }
+    }
+
 }
