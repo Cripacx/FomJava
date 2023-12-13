@@ -47,9 +47,11 @@ public class RecipeController {
     }
 
     @PutMapping
-    public ResponseEntity<String> edit(@RequestHeader String auth, @RequestParam UUID id, @RequestBody String body) {
+    public ResponseEntity<String> put(@RequestHeader String auth, @RequestBody String body) {
         try {
-            return this.recipeService.edit(this.userService.getUserByHeader(auth), id, RecipeRequestModel.fromJson(body));
+            if (body.startsWith("\"")) body = body.substring(1, body.length() - 1);
+            System.out.println(body);
+            return this.recipeService.put(this.userService.getUserByHeader(auth), RecipeRequestModel.fromJson(body));
         } catch (FomException e) {
             return e.toResponseEntity();
         }

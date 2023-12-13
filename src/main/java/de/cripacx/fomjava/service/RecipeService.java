@@ -53,7 +53,7 @@ public class RecipeService {
                 recipeRequestModel.getDescription(),
                 recipeRequestModel.getIngredients()
         ));
-        return new ResponseEntity<>("OK", HttpStatus.OK);
+        return new ResponseEntity<>("Created", HttpStatus.CREATED);
     }
 
     public ResponseEntity<String> delete(User user, UUID id) throws FomException {
@@ -63,23 +63,21 @@ public class RecipeService {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
-    public ResponseEntity<String> edit(User user, UUID id, RecipeRequestModel recipeRequestModel) throws FomException {
-        Recipe recipe = this.recipeRepository.findById(id).orElseThrow(RecipeNotFoundException::new);
+    public ResponseEntity<String> put(User user, RecipeRequestModel recipeRequestModel) throws FomException {
+        if(recipeRequestModel.getId() == null) return this.create(user, recipeRequestModel);
+        Recipe recipe = this.recipeRepository.findById(recipeRequestModel.getId()).orElseThrow(RecipeNotFoundException::new);
         if(!recipe.getCreator().equals(user.getId())) throw new RecipeNotFoundException();
-        this.recipeRepository.save(recipeRequestModel.toRecipe().id(id).creator(user.getId()).build());
+        this.recipeRepository.save(recipeRequestModel.toRecipe().creator(user.getId()).build());
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
     public ResponseEntity<String> uploadImage(User user, String base64Image) throws FomException {
         BinaryData data;
+        System.out.println(base64Image);
         try {
             data = BinaryData.fromBytes(Base64.getDecoder().decode(base64Image));
         } catch (IllegalArgumentException e) {
-            System.out.println();
-            System.out.println();
-            System.out.println(base64Image);
-            System.out.println();
-            System.out.println();
+            System.out.println("Fehler");
             throw new BadRequestException();
         }
         SyncPoller<OperationResult, AnalyzeResult> analyzeDocumentPoller =

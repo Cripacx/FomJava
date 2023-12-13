@@ -8,10 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 public class RecipeRequestModel {
 
+    private UUID id;
     private String name;
     private String image;
     private String description;
@@ -26,7 +28,7 @@ public class RecipeRequestModel {
     }
 
     public Recipe.RecipeBuilder toRecipe() {
-        return Recipe.builder().name(this.name).image(this.image).description(this.description).ingredients(this.ingredients);
+        return Recipe.builder().id(id).name(this.name).image(this.image).description(this.description).ingredients(this.ingredients);
     }
 
 }
