@@ -4,18 +4,21 @@ import de.cripacx.fomjava.entity.Ingredient;
 import de.cripacx.fomjava.entity.Recipe;
 import de.cripacx.fomjava.util.AbstractResponse;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@AllArgsConstructor
+@AllArgsConstructor @Builder
 public class RecipeResponseModel extends AbstractResponse {
 
     private UUID id;
     private UUID creator;
     private String name;
     private String image;
+    @Setter
     private String description;
     private List<Ingredient> ingredients;
 

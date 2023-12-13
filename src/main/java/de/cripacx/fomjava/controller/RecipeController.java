@@ -49,10 +49,11 @@ public class RecipeController {
     @PutMapping
     public ResponseEntity<String> put(@RequestHeader String auth, @RequestBody String body) {
         try {
-            if (body.startsWith("\"")) body = body.substring(1, body.length() - 1);
-            System.out.println(body);
             return this.recipeService.put(this.userService.getUserByHeader(auth), RecipeRequestModel.fromJson(body));
         } catch (FomException e) {
+            System.out.println();
+            System.out.println(body);
+            System.out.println();
             return e.toResponseEntity();
         }
     }

@@ -12,6 +12,7 @@ import de.cripacx.fomjava.entity.User;
 import de.cripacx.fomjava.exception.BadRequestException;
 import de.cripacx.fomjava.exception.FomException;
 import de.cripacx.fomjava.exception.recipe.RecipeNotFoundException;
+import de.cripacx.fomjava.exception.recipe.ServerErrorException;
 import de.cripacx.fomjava.model.RecipeRequestModel;
 import de.cripacx.fomjava.model.RecipeResponseModel;
 import de.cripacx.fomjava.repository.RecipeRepository;
@@ -21,9 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -73,24 +72,28 @@ public class RecipeService {
 
     public ResponseEntity<String> uploadImage(User user, String base64Image) throws FomException {
         BinaryData data;
-        System.out.println(base64Image);
+        if (base64Image.startsWith("\"")) base64Image = base64Image.substring(1, base64Image.length() - 1);
         try {
             data = BinaryData.fromBytes(Base64.getDecoder().decode(base64Image));
         } catch (IllegalArgumentException e) {
-            System.out.println("Fehler");
             throw new BadRequestException();
         }
         SyncPoller<OperationResult, AnalyzeResult> analyzeDocumentPoller =
                 FomJavaApplication.getClient().beginAnalyzeDocument("prebuilt-layout", data);
         AnalyzeResult analyzeResult = analyzeDocumentPoller.getFinalResult();
 
-        for(DocumentPage page : analyzeResult.getPages()) {
-            System.out.println("Page " + page.getPageNumber());
-            for(DocumentLine line : page.getLines()) {
-                System.out.println(line.getContent());
-            }
+        Map<String, Object> response = FomJavaApplication.getAzureOpenAI().sendRequest(analyzeResult.getContent());
+        try {
+            List<Object> choices = (List<Object>) response.get("choices");
+            Map<String, Object> choice = (Map<String, Object>) choices.get(0);
+            Map<String, Object> message = (Map<String, Object>) choice.get("message");
+            String content = (String) message.get("content");
+            RecipeResponseModel recipeResponseModel = FomJavaApplication.getGson().fromJson(content, RecipeResponseModel.class);
+            recipeResponseModel.setDescription(analyzeResult.getContent());
+            return recipeResponseModel.toResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Couldnt convert Response");
+            throw new ServerErrorException();
         }
-        System.out.println(analyzeResult.getContent());
-        return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 }

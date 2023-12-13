@@ -68,6 +68,13 @@ public class UserService {
         return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
 
+    public ResponseEntity<String> updatePassword(User user, String password) {
+        user.setPassword(password);
+        this.userRepository.save(user);
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
+    }
+
+
     public ResponseEntity<String> login(UserRequestModel userRequestModel) throws FomException {
         User user = this.userRepository.findByMailEquals(userRequestModel.getMail()).orElseThrow(UserNotFoundException::new);
         if(!user.getPassword().equals(userRequestModel.getPassword())) {
