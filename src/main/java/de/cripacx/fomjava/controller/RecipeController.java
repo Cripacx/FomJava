@@ -6,6 +6,8 @@ import de.cripacx.fomjava.model.RecipeRequestModel;
 import de.cripacx.fomjava.service.RecipeService;
 import de.cripacx.fomjava.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Marker;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/recipes")
 @AllArgsConstructor
+@Slf4j
 public class RecipeController {
 
     private RecipeService recipeService;
@@ -40,6 +43,7 @@ public class RecipeController {
     @DeleteMapping
     public ResponseEntity<String> delete(@RequestHeader String auth, @RequestParam UUID id) {
         try {
+
             return this.recipeService.delete(this.userService.getUserByHeader(auth), id);
         } catch (FomException e) {
             return e.toResponseEntity();
@@ -49,6 +53,7 @@ public class RecipeController {
     @PutMapping
     public ResponseEntity<String> put(@RequestHeader String auth, @RequestBody String body) {
         try {
+            log.info(body);
             return this.recipeService.put(this.userService.getUserByHeader(auth), RecipeRequestModel.fromJson(body));
         } catch (FomException e) {
             System.out.println();

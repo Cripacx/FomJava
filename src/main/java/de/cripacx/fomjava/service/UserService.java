@@ -8,6 +8,7 @@ import de.cripacx.fomjava.exception.user.MailAlreadyExistsException;
 import de.cripacx.fomjava.exception.user.UserNotFoundException;
 import de.cripacx.fomjava.model.UserRequestModel;
 import de.cripacx.fomjava.model.UserResponseModel;
+import de.cripacx.fomjava.permission.Permission;
 import de.cripacx.fomjava.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

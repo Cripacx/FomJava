@@ -15,8 +15,10 @@ import de.cripacx.fomjava.exception.recipe.RecipeNotFoundException;
 import de.cripacx.fomjava.exception.recipe.ServerErrorException;
 import de.cripacx.fomjava.model.RecipeRequestModel;
 import de.cripacx.fomjava.model.RecipeResponseModel;
+import de.cripacx.fomjava.permission.Permission;
 import de.cripacx.fomjava.repository.RecipeRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class RecipeService {
 
     @Autowired
@@ -39,7 +42,9 @@ public class RecipeService {
     }
 
     public ResponseEntity<String> getAll(User user) {
-        this.recipeRepository.findAllByCreatorEquals(user.getId());
+        if(user.getPermissions().contains(Permission.VIEW_ALL_DOCUMENTS)) {
+            return new ResponseEntity<String>("{\"recipes\":" + FomJavaApplication.getGson().toJson(RecipeResponseModel.fromRecipes(this.recipeRepository.findAll())) + "}", HttpStatus.OK);
+        }
         return new ResponseEntity<String>("{\"recipes\":" + FomJavaApplication.getGson().toJson(RecipeResponseModel.fromRecipes(this.recipeRepository.findAllByCreatorEquals(user.getId()))) + "}", HttpStatus.OK);
     }
 
@@ -93,6 +98,8 @@ public class RecipeService {
             return recipeResponseModel.toResponseEntity(HttpStatus.OK);
         } catch (Exception e) {
             System.out.println("Couldnt convert Response");
+            log.error(analyzeResult.getContent());
+            log.error(response.toString());
             throw new ServerErrorException();
         }
     }

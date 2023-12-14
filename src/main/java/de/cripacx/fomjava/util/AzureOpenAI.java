@@ -30,7 +30,7 @@ public class AzureOpenAI {
             requestData.put("messages", List.of(
                     Map.of(
                             "role", "system",
-                            "content", "Export all ingredients as Json Format and split name and amount"
+                            "content", "Export all ingredients as Json Format and split name and amount. Example: {\"ingredients\":[{\"name\":\"ExampleName\",\"amount\":\"exampleamount\"}]}. And dont add Notes!"
                     ),
                     Map.of(
                             "role", "user",
